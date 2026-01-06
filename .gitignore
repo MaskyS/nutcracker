@@ -185,3 +185,6 @@ drizzle/
 scripts/.venv/
 scripts/__pycache__/
 *.pyc
+
+# Claude Code settings (user-specific)
+.claude/
