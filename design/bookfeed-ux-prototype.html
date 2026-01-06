@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookFeed - UX Prototype</title>
+
+  <!-- Fonts: Newsreader for quotes (literary), Instrument Sans for UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Warm paper-inspired palette */
+      --bg-primary: #FAF8F5;
+      --bg-card: #FFFFFF;
+      --bg-hover: #F5F3EF;
+      --bg-accent: #F0EDE8;
+
+      /* Text hierarchy */
+      --text-primary: #1A1A1A;
+      --text-secondary: #5C5C5C;
+      --text-tertiary: #8A8A8A;
+      --text-muted: #B0B0B0;
+
+      /* Accent - deep literary blue */
+      --accent: #2D4A6F;
+      --accent-light: #4A6B8A;
+      --accent-subtle: rgba(45, 74, 111, 0.08);
+
+      /* Functional */
+      --border: rgba(0, 0, 0, 0.06);
+      --border-strong: rgba(0, 0, 0, 0.12);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+      /* Typography */
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'Instrument Sans', -apple-system, sans-serif;
+
+      /* Spacing */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+
+      /* Subtle paper texture */
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      background-blend-mode: overlay;
+      background-size: 200px;
+    }
+
+    /* ========================================
+       LAYOUT SHELL
+    ======================================== */
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: var(--space-lg);
+      position: fixed;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-2xl);
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .logo-text {
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-subtle);
+      color: var(--accent);
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--border);
+    }
+
+    .stats-mini {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .stat-label {
+      color: var(--text-tertiary);
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* ========================================
+       MAIN CONTENT
+    ======================================== */
+
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      justify-content: center;
+      padding: var(--space-xl) var(--space-lg);
+    }
+
+    .feed-container {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .feed-header {
+      margin-bottom: var(--space-xl);
+      padding-bottom: var(--space-lg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feed-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .feed-subtitle {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--text-primary);
+    }
+
+    .feed-progress {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    /* ========================================
+       POST CARD - The Atomic Unit
+    ======================================== */
+
+    .post-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .post-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    /* Source attribution - top of card */
+    .post-source {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .source-avatar {
+      width: 40px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Book spine effect */
+    .source-avatar::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: rgba(0,0,0,0.15);
+    }
+
+    .source-avatar span {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-weight: 500;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .source-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .source-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .source-meta {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .source-meta .dot {
+      width: 3px;
+      height: 3px;
+      background: var(--text-muted);
+      border-radius: 50%;
+    }
+
+    /* The Quote - Hero element */
+    .post-quote {
+      font-family: var(--font-serif);
+      font-size: 19px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      margin-bottom: var(--space-md);
+      position: relative;
+      padding-left: var(--space-lg);
+    }
+
+    .post-quote::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Insight/Summary - Optional AI addition */
+    .post-insight {
+      font-size: 14px;
+      color: var(--text-secondary);
+      padding: var(--space-md);
+      background: var(--bg-accent);
+      border-radius: 8px;
+      margin-bottom: var(--space-md);
+      line-height: 1.5;
+    }
+
+    .post-insight::before {
+      content: '✦';
+      margin-right: var(--space-sm);
+      color: var(--accent);
+    }
+
+    /* Tags */
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .tag {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-subtle);
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    /* Actions row */
+    .post-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border);
+    }
+
+    .action-group {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-md);
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+
+    .action-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+    }
+
+    .action-btn.active {
+      color: var(--accent);
+    }
+
+    .action-btn.dismiss:hover {
+      background: #FEF2F2;
+      color: #B91C1C;
+    }
+
+    .action-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .seen-indicator {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ========================================
+       EXPANDED STATE
+    ======================================== */
+
+    .post-card.expanded {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .post-context {
+      margin-top: var(--space-md);
+      padding: var(--space-md);
+      background: var(--bg-primary);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      animation: slideDown 0.2s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .context-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .context-text {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .context-text .highlight {
+      background: rgba(45, 74, 111, 0.1);
+      padding: 2px 0;
+    }
+
+    /* ========================================
+       "ALL CAUGHT UP" STATE
+    ======================================== */
+
+    .caught-up {
+      text-align: center;
+      padding: var(--space-2xl) var(--space-lg);
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin-top: var(--space-xl);
+    }
+
+    .caught-up-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-lg);
+      font-size: 28px;
+    }
+
+    .caught-up-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .caught-up-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-lg);
+    }
+
+    .caught-up-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-2xl);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--border);
+    }
+
+    .caught-up-stat {
+      text-align: center;
+    }
+
+    .caught-up-stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .caught-up-stat-label {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: var(--space-xs);
+    }
+
+    /* ========================================
+       LIBRARY VIEW (Secondary)
+    ======================================== */
+
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
+
+    .book-card {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .book-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .book-cover {
+      aspect-ratio: 2/3;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      border-radius: 4px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .book-cover::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: rgba(0,0,0,0.15);
+    }
+
+    .book-cover span {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .book-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .book-author {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .book-extracts {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: var(--space-xs);
+    }
+
+    /* ========================================
+       PROCESSING STATE
+    ======================================== */
+
+    .book-processing {
+      opacity: 0.7;
+    }
+
+    .book-processing .book-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,0.3) 50%,
+        transparent 100%
+      );
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* ========================================
+       RESPONSIVE
+    ======================================== */
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: var(--space-md);
+      }
+
+      .post-quote {
+        font-size: 17px;
+      }
+    }
+
+    /* ========================================
+       DEMO NAVIGATION
+    ======================================== */
+
+    .demo-nav {
+      position: fixed;
+      bottom: var(--space-lg);
+      right: var(--space-lg);
+      display: flex;
+      gap: var(--space-sm);
+      z-index: 100;
+    }
+
+    .demo-btn {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+
+    .demo-btn:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .demo-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* View switching */
+    .view { display: none; }
+    .view.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">B</div>
+        <span class="logo-text">BookFeed</span>
+      </div>
+
+      <div class="nav">
+        <a class="nav-item active" data-view="feed">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+          </svg>
+          Feed
+        </a>
+        <a class="nav-item" data-view="library">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          Library
+        </a>
+        <a class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+          </svg>
+          Saved
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="stats-mini">
+          <div class="stat-row">
+            <span class="stat-label">Books</span>
+            <span class="stat-value">12</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Extracts</span>
+            <span class="stat-value">847</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Today</span>
+            <span class="stat-value">23/50</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- FEED VIEW -->
+      <div class="feed-container view active" id="feed-view">
+        <header class="feed-header">
+          <div class="feed-title">Today's Feed</div>
+          <h1 class="feed-subtitle">Tuesday, January 5</h1>
+          <div class="feed-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 46%"></div>
+            </div>
+            <span class="progress-text">23 of 50</span>
+          </div>
+        </header>
+
+        <!-- Post Card 1 - Standard Quote -->
+        <article class="post-card">
+          <div class="post-source">
+            <div class="source-avatar" style="background: linear-gradient(135deg, #1E3A5F 0%, #2D5A87 100%);">
+              <span>A</span>
+            </div>
+            <div class="source-info">
+              <div class="source-title">Antifragile</div>
+              <div class="source-meta">
+                Nassim Taleb
+                <span class="dot"></span>
+                p. 127
+              </div>
+            </div>
+          </div>
+
+          <blockquote class="post-quote">
+            The three most harmful addictions are heroin, carbohydrates, and a monthly salary.
+          </blockquote>
+
+          <div class="post-tags">
+            <span class="tag">independence</span>
+            <span class="tag">risk</span>
+          </div>
+
+          <div class="post-actions">
+            <div class="action-group">
+              <button class="action-btn">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+                Expand
+              </button>
+              <button class="action-btn">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                Save
+              </button>
+              <button class="action-btn dismiss">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <span class="seen-indicator">Seen 2x</span>
+          </div>
+        </article>
+
+        <!-- Post Card 2 - With Insight -->
+        <article class="post-card">
+          <div class="post-source">
+            <div class="source-avatar" style="background: linear-gradient(135deg, #5D4037 0%, #795548 100%);">
+              <span>M</span>
+            </div>
+            <div class="source-info">
+              <div class="source-title">Meditations</div>
+              <div class="source-meta">
+                Marcus Aurelius
+                <span class="dot"></span>
+                Book IV
+              </div>
+            </div>
+          </div>
+
+          <blockquote class="post-quote">
+            Never esteem anything as of advantage to you that will make you break your word or lose your self-respect.
+          </blockquote>
+
+          <div class="post-insight">
+            Integrity compounds. Short-term gains from compromise create long-term costs in self-trust and reputation.
+          </div>
+
+          <div class="post-actions">
+            <div class="action-group">
+              <button class="action-btn">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+                Expand
+              </button>
+              <button class="action-btn active">
+                <svg class="action-icon" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                Saved
+              </button>
+              <button class="action-btn dismiss">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <span class="seen-indicator">New</span>
+          </div>
+        </article>
+
+        <!-- Post Card 3 - Expanded State -->
+        <article class="post-card expanded">
+          <div class="post-source">
+            <div class="source-avatar" style="background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);">
+              <span>H</span>
+            </div>
+            <div class="source-info">
+              <div class="source-title">How to Take Smart Notes</div>
+              <div class="source-meta">
+                Sönke Ahrens
+                <span class="dot"></span>
+                p. 84
+              </div>
+            </div>
+          </div>
+
+          <blockquote class="post-quote">
+            The slip-box is not a collection of notes. It is a tool for thinking and an idea generator.
+          </blockquote>
+
+          <div class="post-context">
+            <div class="context-label">Surrounding Context</div>
+            <p class="context-text">
+              Many students and academics try to build a collection of notes that cover an extensive range of topics. But <span class="highlight">the slip-box is not a collection of notes. It is a tool for thinking and an idea generator.</span> What makes it so powerful is not the notes themselves, but the connections between them and the way they spark new ideas through unexpected encounters.
+            </p>
+          </div>
+
+          <div class="post-actions">
+            <div class="action-group">
+              <button class="action-btn active">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+                Collapse
+              </button>
+              <button class="action-btn">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                Save
+              </button>
+              <button class="action-btn dismiss">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <span class="seen-indicator">Seen 5x</span>
+          </div>
+        </article>
+
+        <!-- Post Card 4 - Question Type (Rare) -->
+        <article class="post-card">
+          <div class="post-source">
+            <div class="source-avatar" style="background: linear-gradient(135deg, #6A1B9A 0%, #8E24AA 100%);">
+              <span>T</span>
+            </div>
+            <div class="source-info">
+              <div class="source-title">Thinking, Fast and Slow</div>
+              <div class="source-meta">
+                Daniel Kahneman
+                <span class="dot"></span>
+                p. 201
+              </div>
+            </div>
+          </div>
+
+          <blockquote class="post-quote" style="font-style: normal;">
+            What is "WYSIATI" and why does it matter for decision-making?
+          </blockquote>
+
+          <div class="post-insight" style="background: var(--accent-subtle);">
+            WYSIATI = "What You See Is All There Is." We make confident judgments based only on available information, ignoring what we don't know.
+          </div>
+
+          <div class="post-actions">
+            <div class="action-group">
+              <button class="action-btn">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+                Expand
+              </button>
+              <button class="action-btn">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                Save
+              </button>
+              <button class="action-btn dismiss">
+                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <span class="seen-indicator">New</span>
+          </div>
+        </article>
+
+        <!-- "All Caught Up" State -->
+        <div class="caught-up" id="caught-up" style="display: none;">
+          <div class="caught-up-icon">✓</div>
+          <h2 class="caught-up-title">You're all caught up</h2>
+          <p class="caught-up-subtitle">Come back tomorrow for fresh extracts from your library</p>
+          <div class="caught-up-stats">
+            <div class="caught-up-stat">
+              <div class="caught-up-stat-value">50</div>
+              <div class="caught-up-stat-label">Posts today</div>
+            </div>
+            <div class="caught-up-stat">
+              <div class="caught-up-stat-value">8</div>
+              <div class="caught-up-stat-label">Saved</div>
+            </div>
+            <div class="caught-up-stat">
+              <div class="caught-up-stat-value">12</div>
+              <div class="caught-up-stat-label">Books touched</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIBRARY VIEW -->
+      <div class="feed-container view" id="library-view">
+        <header class="feed-header">
+          <div class="feed-title">Your Library</div>
+          <h1 class="feed-subtitle">12 Books · 847 Extracts</h1>
+        </header>
+
+        <div class="library-grid">
+          <div class="book-card">
+            <div class="book-cover" style="background: linear-gradient(135deg, #1E3A5F 0%, #2D5A87 100%);">
+              <span>A</span>
+            </div>
+            <div class="book-title">Antifragile</div>
+            <div class="book-author">Nassim Taleb</div>
+            <div class="book-extracts">142 extracts</div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background: linear-gradient(135deg, #5D4037 0%, #795548 100%);">
+              <span>M</span>
+            </div>
+            <div class="book-title">Meditations</div>
+            <div class="book-author">Marcus Aurelius</div>
+            <div class="book-extracts">89 extracts</div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);">
+              <span>H</span>
+            </div>
+            <div class="book-title">How to Take Smart Notes</div>
+            <div class="book-author">Sönke Ahrens</div>
+            <div class="book-extracts">76 extracts</div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background: linear-gradient(135deg, #6A1B9A 0%, #8E24AA 100%);">
+              <span>T</span>
+            </div>
+            <div class="book-title">Thinking, Fast and Slow</div>
+            <div class="book-author">Daniel Kahneman</div>
+            <div class="book-extracts">118 extracts</div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background: linear-gradient(135deg, #C62828 0%, #E53935 100%);">
+              <span>Z</span>
+            </div>
+            <div class="book-title">Zen and the Art of Motorcycle Maintenance</div>
+            <div class="book-author">Robert Pirsig</div>
+            <div class="book-extracts">94 extracts</div>
+          </div>
+
+          <div class="book-card book-processing">
+            <div class="book-cover" style="background: linear-gradient(135deg, #37474F 0%, #546E7A 100%);">
+              <span>S</span>
+            </div>
+            <div class="book-title">Sapiens</div>
+            <div class="book-author">Yuval Noah Harari</div>
+            <div class="book-extracts">Processing...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Demo Navigation -->
+  <div class="demo-nav">
+    <button class="demo-btn active" onclick="showView('feed')">Feed</button>
+    <button class="demo-btn" onclick="showView('library')">Library</button>
+    <button class="demo-btn" onclick="toggleCaughtUp()">All Caught Up</button>
+  </div>
+
+  <script>
+    // View switching
+    function showView(viewName) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(viewName + '-view').classList.add('active');
+      document.querySelector(`[data-view="${viewName}"]`)?.classList.add('active');
+      document.querySelector(`.demo-btn[onclick="showView('${viewName}')"]`)?.classList.add('active');
+    }
+
+    // Toggle caught up state
+    let isCaughtUp = false;
+    function toggleCaughtUp() {
+      isCaughtUp = !isCaughtUp;
+      const caughtUp = document.getElementById('caught-up');
+      const posts = document.querySelectorAll('.post-card');
+
+      if (isCaughtUp) {
+        posts.forEach(p => p.style.display = 'none');
+        caughtUp.style.display = 'block';
+      } else {
+        posts.forEach(p => p.style.display = 'block');
+        caughtUp.style.display = 'none';
+      }
+    }
+
+    // Make post cards interactive
+    document.querySelectorAll('.post-card').forEach(card => {
+      const expandBtn = card.querySelector('.action-btn');
+      if (expandBtn) {
+        expandBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          card.classList.toggle('expanded');
+
+          // Toggle context visibility
+          let context = card.querySelector('.post-context');
+          if (card.classList.contains('expanded') && !context) {
+            context = document.createElement('div');
+            context.className = 'post-context';
+            context.innerHTML = `
+              <div class="context-label">Surrounding Context</div>
+              <p class="context-text">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                <span class="highlight">${card.querySelector('.post-quote').textContent}</span>
+                Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </p>
+            `;
+            card.querySelector('.post-quote').after(context);
+          } else if (!card.classList.contains('expanded') && context && !card.querySelector('.post-context[data-permanent]')) {
+            context.remove();
+          }
+        });
+      }
+    });
+
+    // Nav item clicks
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const view = item.dataset.view;
+        if (view) showView(view);
+      });
+    });
+  </script>
+</body>
+</html>
